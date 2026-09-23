@@ -1,7 +1,9 @@
 package com.ailearning.userservice.controller;
 
 import com.ailearning.userservice.dto.request.RegisterUserRequest;
+import com.ailearning.userservice.dto.request.UpdateUserRequest;
 import com.ailearning.userservice.dto.response.RegisterUserResponse;
+import com.ailearning.userservice.dto.response.UserProfileResponse;
 import com.ailearning.userservice.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -29,6 +31,22 @@ public class UserController {
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
+    }
+
+    @Operation(summary = "Update user profile")
+    @PutMapping("/{id}")
+    public void updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateUserRequest request) {
+
+        userService.updateUser(id, request);
+    }
+
+    @Operation(summary = "Get user profile")
+    @GetMapping("/{id}")
+    public UserProfileResponse getUserProfile(@PathVariable Long id) {
+
+        return userService.getUserProfile(id);
     }
 
 }

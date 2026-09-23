@@ -1,7 +1,9 @@
 package com.ailearning.userservice.service.impl;
 
 import com.ailearning.userservice.dto.request.RegisterUserRequest;
+import com.ailearning.userservice.dto.request.UpdateUserRequest;
 import com.ailearning.userservice.dto.response.RegisterUserResponse;
+import com.ailearning.userservice.dto.response.UserProfileResponse;
 import com.ailearning.userservice.entity.User;
 import com.ailearning.userservice.exception.EmailAlreadyExistsException;
 import com.ailearning.userservice.exception.UserNameAlreadyExistsException;
@@ -55,5 +57,43 @@ public class UserServiceImpl implements UserService {
 
         userRepository.delete(user);
     }
+
+    @Override
+    public void updateUser(Long id, UpdateUserRequest request) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        if (!user.getEmail().equals(request.getEmail())
+                && userRepository.existsByEmail(request.getEmail())) {
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
+
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
+        user.setContactNumber(request.getContactNumber());
+
+        userRepository.save(user);
+    }
+
+    @Override
+    public UserProfileResponse getUserProfile(Long id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        return new UserProfileResponse(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getContactNumber(),
+                user.getRole(),
+                user.getAccountStatus()
+        );
+    }
+
 
 }
