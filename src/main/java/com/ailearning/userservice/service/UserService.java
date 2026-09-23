@@ -1,7 +1,9 @@
 package com.ailearning.userservice.service;
 
+import com.ailearning.userservice.dto.request.LoginRequest;
 import com.ailearning.userservice.dto.request.RegisterUserRequest;
 import com.ailearning.userservice.dto.request.UpdateUserRequest;
+import com.ailearning.userservice.dto.response.LoginResponse;
 import com.ailearning.userservice.dto.response.RegisterUserResponse;
 import com.ailearning.userservice.dto.response.UserProfileResponse;
 
@@ -15,5 +17,6 @@ public interface UserService {
 
     UserProfileResponse getUserProfile(Long id);
 
+    LoginResponse login(LoginRequest request);
 
 }

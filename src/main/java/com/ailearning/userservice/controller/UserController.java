@@ -1,7 +1,9 @@
 package com.ailearning.userservice.controller;
 
+import com.ailearning.userservice.dto.request.LoginRequest;
 import com.ailearning.userservice.dto.request.RegisterUserRequest;
 import com.ailearning.userservice.dto.request.UpdateUserRequest;
+import com.ailearning.userservice.dto.response.LoginResponse;
 import com.ailearning.userservice.dto.response.RegisterUserResponse;
 import com.ailearning.userservice.dto.response.UserProfileResponse;
 import com.ailearning.userservice.service.UserService;
@@ -47,6 +49,14 @@ public class UserController {
     public UserProfileResponse getUserProfile(@PathVariable Long id) {
 
         return userService.getUserProfile(id);
+    }
+
+    @Operation(summary = "Login user")
+    @PostMapping("/login")
+    public LoginResponse login(
+            @Valid @RequestBody LoginRequest request) {
+
+        return userService.login(request);
     }
 
 }

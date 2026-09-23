@@ -1,11 +1,14 @@
 package com.ailearning.userservice.service.impl;
 
+import com.ailearning.userservice.dto.request.LoginRequest;
 import com.ailearning.userservice.dto.request.RegisterUserRequest;
 import com.ailearning.userservice.dto.request.UpdateUserRequest;
+import com.ailearning.userservice.dto.response.LoginResponse;
 import com.ailearning.userservice.dto.response.RegisterUserResponse;
 import com.ailearning.userservice.dto.response.UserProfileResponse;
 import com.ailearning.userservice.entity.User;
 import com.ailearning.userservice.exception.EmailAlreadyExistsException;
+import com.ailearning.userservice.exception.InvalidCredentialsException;
 import com.ailearning.userservice.exception.UserNameAlreadyExistsException;
 import com.ailearning.userservice.exception.UserNotFoundException;
 import com.ailearning.userservice.repository.UserRepository;
@@ -95,5 +98,23 @@ public class UserServiceImpl implements UserService {
         );
     }
 
+    @Override
+    public LoginResponse login(LoginRequest request) {
+
+        User user = userRepository.findByEmail(request.getEmailOrUsername())
+                .orElseGet(() ->
+                        userRepository.findByUsername(request.getEmailOrUsername())
+                                .orElseThrow(() ->
+                                        new InvalidCredentialsException("Invalid email/username or password"))
+                );
+
+        if (!user.getPassword().equals(request.getPassword())) {
+            throw new InvalidCredentialsException(
+                    "Invalid email/username or password"
+            );
+        }
+
+        return new LoginResponse("Login successful");
+    }
 
 }
