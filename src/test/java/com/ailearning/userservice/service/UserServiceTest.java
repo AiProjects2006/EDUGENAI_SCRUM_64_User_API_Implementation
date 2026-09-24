@@ -1,24 +1,26 @@
 package com.ailearning.userservice.service;
 
+import com.ailearning.userservice.dto.request.LoginRequest;
 import com.ailearning.userservice.dto.request.UpdateUserRequest;
+import com.ailearning.userservice.dto.response.LoginResponse;
 import com.ailearning.userservice.dto.response.UserProfileResponse;
 import com.ailearning.userservice.entity.User;
 import com.ailearning.userservice.enums.Role;
 import com.ailearning.userservice.enums.UserStatus;
+import com.ailearning.userservice.exception.InvalidCredentialsException;
 import com.ailearning.userservice.exception.UserNotFoundException;
 import com.ailearning.userservice.repository.UserRepository;
 import com.ailearning.userservice.service.impl.UserServiceImpl;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -129,6 +131,80 @@ class UserServiceTest {
         assertThrows(
                 UserNotFoundException.class,
                 () -> userService.getUserProfile(99L)
+        );
+    }
+
+    @Test
+    void shouldLoginWithEmail() {
+
+        User user = createUser();
+
+        LoginRequest request = new LoginRequest();
+        request.setEmailOrUsername("john@test.com");
+        request.setPassword("password123");
+
+        when(userRepository.findByEmail("john@test.com"))
+                .thenReturn(Optional.of(user));
+
+        LoginResponse response = userService.login(request);
+
+        assertEquals("Login successful", response.getMessage());
+    }
+
+    @Test
+    void shouldLoginWithUsername() {
+
+        User user = createUser();
+
+        LoginRequest request = new LoginRequest();
+        request.setEmailOrUsername("john123");
+        request.setPassword("password123");
+
+        when(userRepository.findByEmail("john123"))
+                .thenReturn(Optional.empty());
+
+        when(userRepository.findByUsername("john123"))
+                .thenReturn(Optional.of(user));
+
+        LoginResponse response = userService.login(request);
+
+        assertEquals("Login successful", response.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenPasswordIsWrong() {
+
+        User user = createUser();
+
+        LoginRequest request = new LoginRequest();
+        request.setEmailOrUsername("john@test.com");
+        request.setPassword("wrongpassword");
+
+        when(userRepository.findByEmail("john@test.com"))
+                .thenReturn(Optional.of(user));
+
+        assertThrows(
+                InvalidCredentialsException.class,
+                () -> userService.login(request)
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserDoesNotExist() {
+
+        LoginRequest request = new LoginRequest();
+        request.setEmailOrUsername("unknown@test.com");
+        request.setPassword("password123");
+
+        when(userRepository.findByEmail("unknown@test.com"))
+                .thenReturn(Optional.empty());
+
+        when(userRepository.findByUsername("unknown@test.com"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                InvalidCredentialsException.class,
+                () -> userService.login(request)
         );
     }
 }
